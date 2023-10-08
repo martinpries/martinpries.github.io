@@ -1,0 +1,30 @@
+<!-- Include the Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Include the js-yaml library -->
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@3/dist/js-yaml.min.js"></script>
+
+<canvas id="temperatureChart"></canvas>
+<script>
+  fetch('data.yaml')
+    .then(response => response.text())
+    .then(yamlText => {
+      let data = jsyaml.load(yamlText);
+      let dates = data.bathingDays.map(entry => entry.date);
+      let temperatures = data.bathingDays.map(entry => entry.temperature);
+
+      let ctx = document.getElementById('temperatureChart').getContext('2d');
+      let myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Sea Temperature',
+            data: temperatures,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }]
+        }
+      });
+    });
+</script>
