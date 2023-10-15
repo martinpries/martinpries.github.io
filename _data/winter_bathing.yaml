@@ -1,20 +1,30 @@
+- date: 2023-10-15
+  location: BV
+  local_sea_temperature: 14.0
+  official_sea_temperature: 13.95
+  air_temperature: 10.0
+  sauna_type: infrared
 - date: 2023-10-08
   location: BV
   local_sea_temperature: 15.0
   official_sea_temperature: 14.8
   air_temperature: 9.0
+  sauna_type: infrared
 - date: 2023-10-07
   location: BV
   local_sea_temperature: 15.0
   official_sea_temperature: 15.0
   air_temperature: 12.5
+  sauna_type: infrared
 - date: 2023-09-17
   location: BV
   local_sea_temperature: 18.4
   official_sea_temperature: 18.4
   air_temperature: 21.8
+  sauna_type: traditional
 - date: 2023-09-10
   location: BV
   local_sea_temperature: 18.7
   official_sea_temperature: 18.7
   air_temperature: 23.0
+  sauna_type: traditional
