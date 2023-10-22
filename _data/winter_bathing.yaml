@@ -1,3 +1,9 @@
+- date: 2023-10-22
+  location: BV
+  local_sea_temperature: 11.0
+  official_sea_temperature: 10.6
+  air_temperature: 13.0
+  sauna_type: infrared
 - date: 2023-10-21
   location: BV
   local_sea_temperature: 11.0
