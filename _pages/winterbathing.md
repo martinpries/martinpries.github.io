@@ -52,6 +52,18 @@ title: Winter Bath
         [Date.UTC({{ date_parts[0] }}, {{ date_parts[1] | minus: 1 }}, {{ date_parts[2] }}), {{ entry.air_temperature }}]
         {% unless forloop.last %},{% endunless %}
     {% endfor %}];
+    
+    var bathingDates = [{% for entry in site.data.winter_bathing %}
+        {% assign date_parts = entry.date | split: "-" %}
+        {
+            x: Date.UTC({{ date_parts[0] }}, {{ date_parts[1] | minus: 1 }}, {{ date_parts[2] }}),
+            y: 0,
+            sauna_type: "{{ entry.sauna_type }}",
+            color: {% if entry.sauna_type == 'traditional' %}'red'{% elsif entry.sauna_type == 'infrared' %}'purple'{% else %}'black'{% endif %}
+        }
+        {% unless forloop.last %},{% endunless %}
+    {% endfor %}];
+
 
     var startYear = new Date(sealocalTemperatures[0][0]).getUTCFullYear();
     var endYear = new Date(sealocalTemperatures[sealocalTemperatures.length - 1][0]).getUTCFullYear();
@@ -100,7 +112,24 @@ title: Winter Bath
             type: 'spline',
             lineWidth: 2,
             zIndex: 2
-        }],
+        }
+        , {
+            name: 'Sauna Type',
+            data: bathingDates,
+            type: 'spline',
+            color: 'black',
+            lineWidth: 0,
+            marker: {
+                enabled: true,
+                symbol: 'square',
+                radius: 3
+            },
+            zIndex: 2,
+            tooltip: {
+                pointFormat: 'Sauna Type: {point.sauna_type}'
+            }  
+        }
+        ],
         credits: { enabled: false }
     });
 });
