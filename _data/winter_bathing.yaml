@@ -1,3 +1,9 @@
+- date: 2024-01-07
+  location: BV
+  local_sea_temperature: 2.0
+  official_sea_temperature: 0.25
+  air_temperature: -4
+  sauna_type: traditional
 - date: 2024-01-01
   location: BV
   local_sea_temperature: 4.0
