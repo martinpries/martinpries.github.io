@@ -82,6 +82,12 @@
             <p>Lørdag 07:00 til 17:00</p>
             <p>Andre tider er gratis.</p>
             <p>Maks 110 kr per dag og 550 kr per uge</p>
+            <p>1. time: 5 kr</p>
+            <p>2. time: 10 kr</p>
+            <p>3. time: 15 kr</p>
+            <p>4. time: 20 kr</p>
+            <p>5. time: 25 kr</p>
+            <p>6. time: 25 kr</p>
         </div>
     </div>
     <script>
@@ -146,16 +152,40 @@
                 const day = current.getDay();
                 const hour = current.getHours();
                 const minute = current.getMinutes();
+
                 const isChargeable = (day >= 1 && day <= 5 && hour >= 7 && hour < 24) || (day === 6 && hour >= 7 && hour < 17);
 
                 if (isChargeable) {
                     if (dailyTotal < 110) {
                         const remainingMinutesToday = (24 - hour) * 60 - minute;
                         const remainingMinutes = Math.min((end - current) / 1000 / 60, remainingMinutesToday);
-                        const dailyHours = Math.min(1, remainingMinutes / 60);
+                        const dailyMinutes = Math.min(remainingMinutes, 24 * 60 - (hour * 60 + minute));
                         
-                        dailyTotal += Math.min(110 - dailyTotal, calculateHourlyPrice(dailyHours));
-                        total += dailyTotal;
+                        const hourIntervals = [
+                            { maxMinutes: 60, rate: 5 },
+                            { maxMinutes: 60, rate: 10 },
+                            { maxMinutes: 60, rate: 15 },
+                            { maxMinutes: 60, rate: 20 },
+                            { maxMinutes: 60, rate: 25 },
+                            { maxMinutes: 60, rate: 25 },
+                        ];
+
+                        let intervalIndex = 0;
+                        let intervalMinutes = 0;
+
+                        while (intervalMinutes < dailyMinutes && intervalIndex < hourIntervals.length) {
+                            const interval = hourIntervals[intervalIndex];
+                            const remainingIntervalMinutes = interval.maxMinutes - intervalMinutes;
+                            const chargeableMinutes = Math.min(dailyMinutes - intervalMinutes, remainingIntervalMinutes);
+
+                            dailyTotal += (chargeableMinutes / 60) * interval.rate;
+                            intervalMinutes += chargeableMinutes;
+
+                            if (intervalMinutes >= interval.maxMinutes) {
+                                intervalIndex++;
+                                intervalMinutes = 0;
+                            }
+                        }
                     }
                 }
 
@@ -171,21 +201,7 @@
                 }
             }
 
-            return total;
-        }
-
-        function calculateHourlyPrice(hours) {
-            if (hours <= 1) {
-                return hours * 5;
-            } else if (hours <= 2) {
-                return 5 + (hours - 1) * 10;
-            } else if (hours <= 3) {
-                return 5 + 10 + (hours - 2) * 15;
-            } else if (hours <= 4) {
-                return 5 + 10 + 15 + (hours - 3) * 20;
-            } else {
-                return 5 + 10 + 15 + 20 + (hours - 4) * 25;
-            }
+            return Math.min(total, 550);
         }
 
         function highlightCheapestOption(priceA, priceB, priceC) {
