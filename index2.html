@@ -47,24 +47,12 @@
     <div class="container">
         <h1>Hvor skal jeg parkere?</h1>
         <div class="input-group">
-            <label for="weekday">Weekday:</label>
-            <select id="weekday">
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-            </select>
+            <label for="start-datetime">Parking start at:</label>
+            <input type="datetime-local" id="start-datetime">
         </div>
         <div class="input-group">
-            <label for="start-time">Parking start at:</label>
-            <input type="time" id="start-time">
-        </div>
-        <div class="input-group">
-            <label for="end-time">Parking end at:</label>
-            <input type="time" id="end-time">
+            <label for="end-datetime">Parking end at:</label>
+            <input type="datetime-local" id="end-datetime">
         </div>
         <div class="result">
             <ul class="parking-options">
@@ -74,7 +62,7 @@
             </ul>
         </div>
         <div class="map-placeholder">
-            Map of parking spaces A, B, C
+            <img src="https://www.carlsbergbyen.dk/-/media/cb2018/om-carlsberg-byen/omrdeoversigt_carlsberg-byen_carlsbergbyen.ashx" alt="Map of Carlsberg Byen" style="width:100%; height:100%;">
         </div>
         <div class="cost-details">
             <h3>Parking space A</h3>
@@ -86,35 +74,31 @@
             <h3>Parking space B</h3>
             <p>16 kr per hour</p>
             <h3>Parking space C</h3>
-            <p>First hour 5kr</p>
-            <p>Second hour 10kr</p>
-            <p>Third hour 15kr</p>
-            <p>Fourth hour 20kr</p>
-            <p>Fifth hour 25kr</p>
-            <p>Saturday from 17:00 to Monday 08:00 it is free</p>
+            <p>Monday to Friday 07:00 to 24:00</p>
+            <p>Saturday 07:00 to 17:00</p>
+            <p>Other times are free of charge.</p>
+            <p>Max 110 kr per day and 550 kr per week</p>
         </div>
     </div>
     <script>
-        document.getElementById('weekday').addEventListener('change', calculateParkingCost);
-        document.getElementById('start-time').addEventListener('input', calculateParkingCost);
-        document.getElementById('end-time').addEventListener('input', calculateParkingCost);
+        document.getElementById('start-datetime').addEventListener('input', calculateParkingCost);
+        document.getElementById('end-datetime').addEventListener('input', calculateParkingCost);
 
         function calculateParkingCost() {
-            const weekday = document.getElementById('weekday').value;
-            const startTime = document.getElementById('start-time').value;
-            const endTime = document.getElementById('end-time').value;
+            const startDateTime = document.getElementById('start-datetime').value;
+            const endDateTime = document.getElementById('end-datetime').value;
 
-            if (!startTime || !endTime) return;
+            if (!startDateTime || !endDateTime) return;
 
-            const start = new Date(`1970-01-01T${startTime}:00`);
-            const end = new Date(`1970-01-01T${endTime}:00`);
+            const start = new Date(startDateTime);
+            const end = new Date(endDateTime);
             const hours = (end - start) / 1000 / 60 / 60;
 
             if (hours <= 0) return;
 
-            const priceA = calculatePriceA(weekday, start, end, hours);
+            const priceA = calculatePriceA(start, end);
             const priceB = 16 * hours;
-            const priceC = calculatePriceC(hours);
+            const priceC = calculatePriceC(start, end);
 
             const prices = [
                 { name: 'Parking space A', price: priceA },
@@ -129,40 +113,62 @@
             document.getElementById('price-c').innerText = prices[2].price.toFixed(2);
         }
 
-        function calculatePriceA(weekday, start, end, hours) {
+        function calculatePriceA(start, end) {
             let total = 0;
-            for (let hour = 0; hour < hours; hour++) {
-                const current = new Date(start.getTime() + hour * 60 * 60 * 1000);
-                if (weekday === 'Saturday' && (current.getHours() >= 17 || current.getHours() < 8)) {
+            let current = new Date(start);
+
+            while (current < end) {
+                const day = current.getDay();
+                const hour = current.getHours();
+
+                if (day === 0 || (day === 6 && (hour >= 17 || hour < 8))) {
+                    current.setHours(current.getHours() + 1);
                     continue;
-                } else if (weekday === 'Sunday') {
-                    continue;
-                } else if (current.getHours() >= 8 && current.getHours() < 18) {
+                } else if (hour >= 8 && hour < 18) {
                     total += 16;
-                } else if (current.getHours() >= 18 && current.getHours() < 23) {
+                } else if (hour >= 18 && hour < 23) {
                     total += 17;
                 } else {
                     total += 6;
                 }
+
+                current.setHours(current.getHours() + 1);
             }
+
             return total;
         }
 
-        function calculatePriceC(hours) {
+        function calculatePriceC(start, end) {
             let total = 0;
-            for (let hour = 1; hour <= hours; hour++) {
-                if (hour === 1) {
-                    total += 5;
-                } else if (hour === 2) {
-                    total += 10;
-                } else if (hour === 3) {
-                    total += 15;
-                } else if (hour === 4) {
-                    total += 20;
-                } else {
-                    total += 25;
+            let dailyTotal = 0;
+            let weeklyTotal = 0;
+            let current = new Date(start);
+
+            while (current < end) {
+                const day = current.getDay();
+                const hour = current.getHours();
+                const isChargeable = (day >= 1 && day <= 5 && hour >= 7 && hour < 24) || (day === 6 && hour >= 7 && hour < 17);
+
+                if (isChargeable) {
+                    if (dailyTotal < 110) {
+                        const dailyHours = Math.min(1, (24 - hour), (end - current) / 1000 / 60 / 60);
+                        dailyTotal += Math.min(110 - dailyTotal, Math.min(5 * dailyHours, 110 - dailyTotal));
+                        total += Math.min(110 - total, dailyTotal);
+                    }
+                }
+
+                current.setHours(current.getHours() + 1);
+                if (current.getHours() === 0) {
+                    weeklyTotal += dailyTotal;
+                    dailyTotal = 0;
+                }
+
+                if (weeklyTotal >= 550) {
+                    total = 550;
+                    break;
                 }
             }
+
             return total;
         }
     </script>
