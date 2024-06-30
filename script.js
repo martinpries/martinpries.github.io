@@ -23,6 +23,7 @@ function calculateParkingCost() {
     highlightCheapestOption(priceA, priceB, priceC);
 }
 
+// København Vesterbro
 function calculatePriceA(start, end) {
     let total = 0;
     let current = new Date(start);
@@ -55,6 +56,7 @@ function calculatePriceA(start, end) {
     return total;
 }
 
+// Carlsberg Byen
 function calculatePriceB(start, end) {
     const hours = (end - start) / 1000 / 60 / 60;
     const startedHours = Math.ceil(hours); // Round up to the nearest hour for started hours
@@ -70,7 +72,7 @@ function calculatePriceB(start, end) {
         if ((day >= 1 && day <= 5)) {
             // Monday to Friday and Sunday
             totalPrice += 27;
-        } else if ((day === 6) || (day === 0)) {
+        } else if ((day >= 6) || (day <= 0)){
             // Saturday and Sunday
             totalPrice += 13.5;
         }
@@ -81,6 +83,7 @@ function calculatePriceB(start, end) {
     return totalPrice;
 }
 
+// Frederiksberg
 function calculatePriceC(start, end) {
     let total = 0;
     let dailyTotal = 0;
