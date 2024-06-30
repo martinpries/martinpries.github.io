@@ -31,19 +31,26 @@ function calculatePriceA(start, end) {
     while (current < end) {
         const day = current.getDay();
         const hour = current.getHours();
-
-        if (day === 0 || (day === 6 && (hour >= 17 || hour < 8))) {
+        const minute = current.getMinutes();
+        
+        if (day === 0 || (day === 6 && hour >= 17) || (day === 1 && hour < 8) || (hour < 8 && hour >= 0)) {
             current.setHours(current.getHours() + 1);
             continue;
-        } else if (hour >= 8 && hour < 18) {
-            total += 16;
-        } else if (hour >= 18 && hour < 23) {
-            total += 17;
-        } else {
-            total += 6;
         }
 
-        current.setHours(current.getHours() + 1);
+        const remainingMinutes = Math.min((end - current) / 1000 / 60, 60 - minute);
+        let ratePerMinute = 0;
+
+        if (hour >= 8 && hour < 18) {
+            ratePerMinute = 16 / 60;
+        } else if (hour >= 18 && hour < 23) {
+            ratePerMinute = 17 / 60;
+        } else if (hour >= 23 || hour < 8) {
+            ratePerMinute = 6 / 60;
+        }
+
+        total += remainingMinutes * ratePerMinute;
+        current.setMinutes(current.getMinutes() + remainingMinutes);
     }
 
     return total;
@@ -91,7 +98,7 @@ function calculatePriceC(start, end) {
                 hoursToCharge = 0;
             }
 
-            const currentRateIndex = Math.min(rates.length - 1, hoursToCharge);
+            const currentRateIndex = Math.min(rates.length - 1, Math.floor(minutesToCharge / 60));
             const minuteRate = rates[currentRateIndex] * (minutesToCharge / 60);
 
             if (dailyTotal + minuteRate <= maxDailyRate) {
