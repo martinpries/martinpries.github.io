@@ -67,11 +67,11 @@ function calculatePriceB(start, end) {
         const hour = current.getHours();
 
         // Determine the rate based on the day and hour
-        if ((day >= 1 && day <= 5) || (day === 0)) {
+        if ((day >= 1 && day <= 5)) {
             // Monday to Friday and Sunday
             totalPrice += 27;
-        } else if (day === 6) {
-            // Saturday
+        } else if ((day === 6) || (day === 0)) {
+            // Saturday and Sunday
             totalPrice += 13.5;
         }
 
