@@ -57,7 +57,28 @@ function calculatePriceA(start, end) {
 
 function calculatePriceB(start, end) {
     const hours = (end - start) / 1000 / 60 / 60;
-    return 16 * hours;
+    const startedHours = Math.ceil(hours); // Round up to the nearest hour for started hours
+
+    let totalPrice = 0;
+    let current = new Date(start);
+
+    while (current < end) {
+        const day = current.getDay();
+        const hour = current.getHours();
+
+        // Determine the rate based on the day and hour
+        if ((day >= 1 && day <= 5) || (day === 0)) {
+            // Monday to Friday and Sunday
+            totalPrice += 27;
+        } else if (day === 6) {
+            // Saturday
+            totalPrice += 13.5;
+        }
+
+        current.setHours(current.getHours() + 1); // Move to the next hour
+    }
+
+    return totalPrice;
 }
 
 function calculatePriceC(start, end) {
