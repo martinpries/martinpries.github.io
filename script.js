@@ -54,6 +54,8 @@ function calculatePriceC(start, end) {
     let dailyTotal = 0;
     let current = new Date(start);
     const rates = [5, 10, 15, 20, 25, 25];
+    const maxDailyRate = 110;
+    const maxWeeklyRate = 550;
     
     while (current < end) {
         const day = current.getDay();
@@ -63,27 +65,44 @@ function calculatePriceC(start, end) {
         const isChargeable = (day >= 1 && day <= 5 && hour >= 7 && hour < 24) || (day === 6 && hour >= 7 && hour < 17);
 
         if (isChargeable) {
-            const remainingMinutes = Math.min((end - current) / 1000 / 60, 24 * 60 - (hour * 60 + minute));
-            let chargeableMinutes = Math.min(remainingMinutes, 60);
+            let remainingMinutes = Math.min((end - current) / 1000 / 60, 24 * 60 - (hour * 60 + minute));
+            let hoursToCharge = Math.floor(remainingMinutes / 60);
+            let minutesToCharge = remainingMinutes % 60;
 
-            for (let i = 0; i < rates.length && chargeableMinutes > 0; i++) {
+            for (let i = 0; i < rates.length && hoursToCharge > 0; i++) {
                 const rate = rates[i];
-                const remainingChargeableMinutes = Math.min(chargeableMinutes, 60);
+                const rateMinutes = 60;
 
-                if (dailyTotal + rate * (remainingChargeableMinutes / 60) <= 110) {
-                    dailyTotal += rate * (remainingChargeableMinutes / 60);
-                    total += rate * (remainingChargeableMinutes / 60);
+                if (dailyTotal + rate <= maxDailyRate) {
+                    dailyTotal += rate;
+                    total += rate;
                 } else {
-                    const allowedMinutes = (110 - dailyTotal) / rate * 60;
-                    chargeableMinutes = Math.min(remainingChargeableMinutes, allowedMinutes);
-                    dailyTotal += rate * (chargeableMinutes / 60);
-                    total += rate * (chargeableMinutes / 60);
+                    total += maxDailyRate - dailyTotal;
+                    dailyTotal = maxDailyRate;
                 }
-
-                chargeableMinutes -= remainingChargeableMinutes;
+                hoursToCharge--;
             }
 
-            current.setMinutes(current.getMinutes() + Math.min(remainingMinutes, 60));
+            if (hoursToCharge > 0) {
+                const additionalRate = 25;
+                const additionalCharge = Math.min(hoursToCharge * additionalRate, maxDailyRate - dailyTotal);
+                dailyTotal += additionalCharge;
+                total += additionalCharge;
+                hoursToCharge = 0;
+            }
+
+            const currentRateIndex = Math.min(rates.length - 1, hoursToCharge);
+            const minuteRate = rates[currentRateIndex] * (minutesToCharge / 60);
+
+            if (dailyTotal + minuteRate <= maxDailyRate) {
+                dailyTotal += minuteRate;
+                total += minuteRate;
+            } else {
+                total += maxDailyRate - dailyTotal;
+                dailyTotal = maxDailyRate;
+            }
+
+            current.setMinutes(current.getMinutes() + remainingMinutes);
         } else {
             current.setHours(current.getHours() + 1);
         }
@@ -93,7 +112,7 @@ function calculatePriceC(start, end) {
         }
     }
 
-    return total;
+    return Math.min(total, maxWeeklyRate);
 }
 
 function highlightCheapestOption(priceA, priceB, priceC) {
