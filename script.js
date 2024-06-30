@@ -9,12 +9,11 @@ function calculateParkingCost() {
 
     const start = new Date(startDateTime);
     const end = new Date(endDateTime);
-    const hours = (end - start) / 1000 / 60 / 60;
 
-    if (hours <= 0) return;
+    if (end <= start) return;
 
     const priceA = calculatePriceA(start, end);
-    const priceB = 16 * hours;
+    const priceB = calculatePriceB(start, end);
     const priceC = calculatePriceC(start, end);
 
     document.getElementById('price-a').innerText = priceA.toFixed(2);
@@ -32,9 +31,9 @@ function calculatePriceA(start, end) {
         const day = current.getDay();
         const hour = current.getHours();
         const minute = current.getMinutes();
-        
+
         if (day === 0 || (day === 6 && hour >= 17) || (day === 1 && hour < 8) || (hour < 8 && hour >= 0)) {
-            current.setHours(current.getHours() + 1);
+            current.setMinutes(current.getMinutes() + 1);
             continue;
         }
 
@@ -56,6 +55,11 @@ function calculatePriceA(start, end) {
     return total;
 }
 
+function calculatePriceB(start, end) {
+    const hours = (end - start) / 1000 / 60 / 60;
+    return 16 * hours;
+}
+
 function calculatePriceC(start, end) {
     let total = 0;
     let dailyTotal = 0;
@@ -63,7 +67,7 @@ function calculatePriceC(start, end) {
     const rates = [5, 10, 15, 20, 25, 25];
     const maxDailyRate = 110;
     const maxWeeklyRate = 550;
-    
+
     while (current < end) {
         const day = current.getDay();
         const hour = current.getHours();
