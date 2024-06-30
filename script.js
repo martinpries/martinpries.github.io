@@ -32,7 +32,7 @@ function calculatePriceA(start, end) {
         const hour = current.getHours();
         const minute = current.getMinutes();
 
-        if (day === 0 || (day === 6 && hour >= 17) || (day === 1 && hour < 8) || (hour < 8 && hour >= 0)) {
+        if ((day === 6 && hour >= 17) || (day === 0) || (hour < 8 && day >= 1 && day <= 5)) {
             current.setMinutes(current.getMinutes() + 1);
             continue;
         }
@@ -76,7 +76,7 @@ function calculatePriceC(start, end) {
         const isChargeable = (day >= 1 && day <= 5 && hour >= 7 && hour < 24) || (day === 6 && hour >= 7 && hour < 17);
 
         if (isChargeable) {
-            let remainingMinutes = Math.min((end - current) / 1000 / 60, 24 * 60 - (hour * 60 + minute));
+            const remainingMinutes = Math.min((end - current) / 1000 / 60, (day === 6 && hour < 17 ? 17 * 60 - (hour * 60 + minute) : 24 * 60 - (hour * 60 + minute)));
             let hoursToCharge = Math.floor(remainingMinutes / 60);
             let minutesToCharge = remainingMinutes % 60;
 
