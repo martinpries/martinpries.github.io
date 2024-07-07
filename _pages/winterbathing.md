@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var startYear = new Date(sealocalTemperatures[0][0]).getUTCFullYear();
     var endYear = new Date(sealocalTemperatures[sealocalTemperatures.length - 1][0]).getUTCFullYear();
 
-    console.log("Start Year:", startYear);
-    console.log("End Year:", endYear);
+    var startYear = 2023
+    var endYear = 2024
 
     var plotBands = [];
     for (var year = startYear; year <= endYear; year++) {
@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log("Plot Bands:", plotBands);
 
     Highcharts.chart('winterBathingChart', {
         title: { text: 'Graph' },
