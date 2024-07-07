@@ -33,14 +33,16 @@ title: Winter Bath
 
 
 
-<script>document.addEventListener('DOMContentLoaded', function() {
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
 
     var sealocalTemperatures = [{% for entry in site.data.winter_bathing %}
         {% assign date_parts = entry.date | split: "-" %}
         [Date.UTC({{ date_parts[0] }}, {{ date_parts[1] | minus: 1 }}, {{ date_parts[2] }}), {{ entry.local_sea_temperature }}]
         {% unless forloop.last %},{% endunless %}
     {% endfor %}];
-    
+
     var seaofficalTemperature = [{% for entry in site.data.winter_bathing %}
         {% assign date_parts = entry.date | split: "-" %}
         [Date.UTC({{ date_parts[0] }}, {{ date_parts[1] | minus: 1 }}, {{ date_parts[2] }}), {{ entry.official_sea_temperature }}]
@@ -52,7 +54,7 @@ title: Winter Bath
         [Date.UTC({{ date_parts[0] }}, {{ date_parts[1] | minus: 1 }}, {{ date_parts[2] }}), {{ entry.air_temperature }}]
         {% unless forloop.last %},{% endunless %}
     {% endfor %}];
-    
+
     var bathingDates = [{% for entry in site.data.winter_bathing %}
         {% assign date_parts = entry.date | split: "-" %}
         {
@@ -64,9 +66,11 @@ title: Winter Bath
         {% unless forloop.last %},{% endunless %}
     {% endfor %}];
 
-
     var startYear = new Date(sealocalTemperatures[0][0]).getUTCFullYear();
     var endYear = new Date(sealocalTemperatures[sealocalTemperatures.length - 1][0]).getUTCFullYear();
+
+    console.log("Start Year:", startYear);
+    console.log("End Year:", endYear);
 
     var plotBands = [];
     for (var year = startYear; year <= endYear; year++) {
@@ -79,6 +83,8 @@ title: Winter Bath
             }
         });
     }
+
+    console.log("Plot Bands:", plotBands);
 
     Highcharts.chart('winterBathingChart', {
         title: { text: 'Graph' },
@@ -112,8 +118,7 @@ title: Winter Bath
             type: 'spline',
             lineWidth: 2,
             zIndex: 2
-        }
-        , {
+        }, {
             name: 'Sauna Type',
             data: bathingDates,
             type: 'spline',
@@ -128,9 +133,10 @@ title: Winter Bath
             tooltip: {
                 pointFormat: 'Sauna Type: {point.sauna_type}'
             }  
-        }
-        ],
+        }],
         credits: { enabled: false }
     });
 });
+
+
 </script>
