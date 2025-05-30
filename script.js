@@ -74,7 +74,7 @@ function calculatePriceB(start, end) {
             totalPrice += 27;
         } else if ((day >= 6) || (day <= 0)){
             // Saturday and Sunday
-            totalPrice += 13.5;
+            totalPrice += 14.5;
         }
 
         current.setHours(current.getHours() + 1); // Move to the next hour
